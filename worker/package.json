@@ -1,15 +1,16 @@
 {
-  "name": "worker",
+  "name": "safety-worker",
   "version": "1.0.0",
   "description": "",
-  "license": "ISC",
-  "author": "",
+  "license": "MIT",
+  "author": "smtdfc",
   "type": "module",
   "scripts": {
     "build": "tsc"
   },
   "main": "dist/index.js",
   "dependencies": {
-    "hono": "^4.8.4"
+    "hono": "^4.8.4",
+    "uuid": "^11.1.0"
   }
 }

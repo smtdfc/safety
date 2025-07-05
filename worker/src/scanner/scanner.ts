@@ -1,12 +1,11 @@
-import crypto from 'crypto';
-import {rules} from './rules.js';
+import { v4 as uuidv4 } from 'uuid';
+import { rules } from './rules.js';
 import {
   ScanResult,
   PageInfo,
   Rule,
   ScanIssue
-} from '../types/index.js'
-
+} from '../types/index.js';
 
 export class Scanner {
   private rules: Rule[] = [];
@@ -19,7 +18,7 @@ export class Scanner {
     this.rules.push(rule);
   }
   
-  async scan(page: PageInfo): Promise<ScanResult> {
+  async scan(page: PageInfo): Promise < ScanResult > {
     const issues: ScanIssue[] = [];
     
     for (const rule of this.rules) {
@@ -37,7 +36,7 @@ export class Scanner {
     }
     
     return {
-      id: crypto.randomUUID?.() || Date.now().toString(),
+      id: uuidv4(), 
       url: page.url,
       issues,
       passed: issues.length === 0,

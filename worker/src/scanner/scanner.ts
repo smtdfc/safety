@@ -8,7 +8,7 @@ import {
 } from '../types/index.js';
 
 export class Scanner {
-  private rules: Rule[] = [];
+  private rules: Rule[] = rules;
   
   constructor(initialRules ? : Rule[]) {
     if (initialRules) this.rules.push(...initialRules);

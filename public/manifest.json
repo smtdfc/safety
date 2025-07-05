@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "AntiScam Guard",
+  "version": "1.0.0",
+  "description": "Block suspicious websites and protect users.",
+  "permissions": ["tabs", "activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

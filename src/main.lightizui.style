@@ -1,0 +1,13 @@
+{
+  "base":"./node_modules/lightiz-ui",
+  "components":[
+    "button",
+    "navbar",
+    "container",
+    "form",
+    "table"
+  ],
+  "helpers":[
+   "spacings"
+  ]
+}

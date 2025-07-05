@@ -20,6 +20,8 @@ export class Scanner {
   
   async scan(page: PageInfo): Promise < ScanResult > {
     const issues: ScanIssue[] = [];
+    const passedRules: { ruleId: string;description: string } [] = [];
+    const skippedRules: { ruleId: string;description: string;error: string } [] = [];
     
     for (const rule of this.rules) {
       try {
@@ -29,17 +31,29 @@ export class Scanner {
             description: rule.description,
             severity: rule.severity,
           });
+        } else {
+          passedRules.push({
+            ruleId: rule.id,
+            description: rule.description,
+          });
         }
       } catch (err) {
+        skippedRules.push({
+          ruleId: rule.id,
+          description: rule.description,
+          error: 'Rule execution failed',
+        });
         console.warn(`Rule "${rule.id}" failed:`, err);
       }
     }
     
     return {
-      id: uuidv4(), 
+      id: uuidv4(),
       url: page.url,
       issues,
       passed: issues.length === 0,
+      passedRules,
+      skippedRules,
     };
   }
 }

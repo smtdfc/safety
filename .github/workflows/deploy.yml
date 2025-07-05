@@ -1,25 +1,32 @@
-name: Deploy Worker
+name: Deploy Cloudflare Worker (CD)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: worker
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm install
-        working-directory: worker
+
+      - name: Build TypeScript
+        run: npm run build
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
@@ -27,4 +34,3 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           command: deploy
-          working-directory: worker

@@ -21,8 +21,7 @@ export class Table extends RumiousComponent<TableProps> {
   renderItem(clear = false) {
     if (clear) this.tableRef.text = "";
     const data = this.props.data;
-    if (!data) return "";
-
+    if (!data) return <Fragment></Fragment>;
     const labels = this.props.labelsMap ?? {};
     return (
       <tbody>

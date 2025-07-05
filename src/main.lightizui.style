@@ -8,6 +8,8 @@
     "table"
   ],
   "helpers":[
-   "spacings"
+   "spacings",
+   "display",
+   "text"
   ]
 }

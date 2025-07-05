@@ -3,7 +3,7 @@
   "name": "AntiScam Guard",
   "version": "1.0.0",
   "description": "Block suspicious websites and protect users.",
-  "permissions": ["tabs", "activeTab"],
+  "permissions": ["tabs", "activeTab","scripting"],
   "action": {
     "default_popup": "popup.html"
   }

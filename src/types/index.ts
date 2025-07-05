@@ -1,19 +1,32 @@
-
-
 export interface ScanResult {
   id: string;
   url: string;
-  isMalicious: boolean;
-  threatTypes: string[];
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  detectedAt: string;
-  detectedBy: string[];
-  reasons: string[];
-  matchedRules: string[];
-  pageMetadata?: {
-    title?: string;
-    metaDescription?: string;
-  };
-  screenshot?: string;
-  additionalInfo?: Record<string, any>;
+  issues: ScanIssue[];
+  passed: boolean;
+  passedRules: {
+    ruleId: string;
+    description: string;
+  } [];
+  skippedRules: {
+    ruleId: string;
+    description: string;
+    error: string;
+  } [];
+}
+
+
+export interface ScanIssue {
+  ruleId: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+}
+
+export interface PageInfo {
+  url: string;
+  pageMetadata: {
+    title: string;
+    redirect: string;
+  },
+  content: string;
+  accessTime: string;
 }

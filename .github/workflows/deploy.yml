@@ -19,10 +19,12 @@ jobs:
 
       - name: Install deps
         run: npm install
+        working-directory: worker
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: publish
+          command: deploy
+        working-directory: worker

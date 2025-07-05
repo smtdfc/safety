@@ -30,6 +30,7 @@ jobs:
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
+        working-directory: worker
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}

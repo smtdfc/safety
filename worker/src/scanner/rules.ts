@@ -1,265 +1,330 @@
 import { Rule } from '../types/index.js';
 
+const TRUSTED_DOMAINS = [
+  // Big Tech & Cloud
+  'google.com',
+  'gmail.com',
+  'apple.com',
+  'icloud.com',
+  'microsoft.com',
+  'outlook.com',
+  'live.com',
+  'azure.com',
+  'cloudflare.com',
+  'amazon.com',
+  'aws.amazon.com',
+  'alibaba.com',
+  'baidu.com',
+  'openai.com',
+  
+  // Social & Communication
+  'facebook.com',
+  'instagram.com',
+  'whatsapp.com',
+  'messenger.com',
+  'twitter.com',
+  'x.com',
+  'linkedin.com',
+  'discord.com',
+  'slack.com',
+  'zoom.us',
+  
+  // Developer & Code
+  'github.com',
+  'gitlab.com',
+  'npmjs.com',
+  'stackoverflow.com',
+  'vscode.dev',
+  'codesandbox.io',
+  'replit.com',
+  'vercel.com',
+  'netlify.com',
+  
+  // Browser & Security
+  'mozilla.org',
+  'firefox.com',
+  'chrome.com',
+  'chromium.org',
+  'letsencrypt.org',
+  'w3.org',
+  'caniuse.com',
+  
+  // Payment & Banking
+  'paypal.com',
+  'stripe.com',
+  'visa.com',
+  'mastercard.com',
+  'americanexpress.com',
+  'revolut.com',
+  'wise.com',
+  'squareup.com',
+  
+  // Video & Streaming
+  'youtube.com',
+  'netflix.com',
+  'spotify.com',
+  'twitch.tv',
+  'hulu.com',
+  'vimeo.com',
+  
+  // Email & Marketing
+  'mailchimp.com',
+  'sendgrid.com',
+  'proton.me',
+  'zoho.com',
+  'yahoo.com',
+  'yandex.com',
+  
+  // Education
+  'coursera.org',
+  'edx.org',
+  'udemy.com',
+  'khanacademy.org',
+  'duolingo.com',
+  
+  // News & Reference
+  'bbc.com',
+  'cnn.com',
+  'nytimes.com',
+  'wikipedia.org',
+  'theguardian.com',
+  'forbes.com',
+  
+  // Others
+  'canva.com',
+  'dropbox.com',
+  'mega.nz',
+  'weebly.com',
+  'notion.so',
+  'figma.com',
+  'airbnb.com',
+  'booking.com',
+  'uber.com',
+];
+
+
+
 export const rules: Rule[] = [
   {
     id: 'clickbait-title',
     description: 'Page title contains clickbait keywords like FREE, BONUS, GIFT, or MONEY',
     severity: 'medium',
-    match: (page) => /free|bonus|gift|money|win|claim/i.test(page.pageMetadata.title),
+    score: 30,
+    match: (parsed) => /free|bonus|gift|money|win|claim/i.test(parsed.title),
   },
   {
     id: 'shortened-redirect',
     description: 'Redirect URL uses suspicious shortening services like bit.ly or t.co',
     severity: 'high',
-    match: (page) => /bit\.ly|t\.co|tinyurl\.com|goo\.gl|shorturl\.at/i.test(page.pageMetadata.redirect),
+    score: 50,
+    match: (parsed) => /bit\.ly|t\.co|tinyurl\.com|goo\.gl|shorturl\.at/i.test(parsed.url),
   },
   {
     id: 'password-input-detected',
     description: 'Page contains a password input field',
     severity: 'high',
-    match: (page) => /type\s*=\s*["']?password["']?/i.test(page.content),
+    score: 80,
+    match: (parsed) => parsed.forms.some((f) => f.hasPasswordField),
   },
   {
-    id: 'phishing-phrases',
-    description: 'Page content contains phishing-related phrases',
+    id: 'suspicious-script',
+    description: 'Uses obfuscated JS: eval, charCodeAt + fromCharCode',
     severity: 'high',
-    match: (page) =>
-      /verify your account|login to claim|your session expired|account suspended/i.test(page.content),
-  },
-  {
-    id: 'urgent-action-phrases',
-    description: 'Page urges user to act quickly with phrases like "limited time offer"',
-    severity: 'medium',
-    match: (page) => /act now|limited time|only today|urgent action required/i.test(page.content),
-  },
-  {
-    id: 'form-without-https',
-    description: 'Form action points to HTTP instead of HTTPS',
-    severity: 'high',
-    match: (page) => /<form[^>]+action=["']http:\/\//i.test(page.content),
-  },
-  {
-    id: 'suspicious-form-fields',
-    description: 'Form contains both email and password inputs (login mimic)',
-    severity: 'high',
-    match: (page) =>
-      /type=["']?(email)["']?/i.test(page.content) &&
-      /type=["']?(password)["']?/i.test(page.content),
-  },
-  {
-    id: 'script-from-bad-source',
-    description: 'Page includes script from suspicious domains',
-    severity: 'medium',
-    match: (page) =>
-      /<script[^>]+src=["']?(http:\/\/|\/\/)?(malware-site\.|suspiciouscdn\.|cdn-scam\.net)/i.test(page.content),
-  },
-  {
-    id: 'hidden-iframe',
-    description: 'Page contains a hidden iframe (used in many phishing kits)',
-    severity: 'medium',
-    match: (page) => /<iframe[^>]+style=["'][^"']*display:\s*none/i.test(page.content),
-  },
-  {
-    id: 'obfuscated-javascript',
-    description: 'Page contains heavily obfuscated JavaScript code',
-    severity: 'medium',
-    match: (page) => /eval\(function\(|window\[["']?["']?\]\s*=/i.test(page.content),
-  },
-  {
-    id: 'no-title-tag',
-    description: 'Page has no title tag (commonly seen in generated scam pages)',
-    severity: 'low',
-    match: (page) => !/<title>.*<\/title>/i.test(page.content),
-  },
-  {
-    id: 'excessive-uppercase',
-    description: 'Page contains too many all-uppercase words (common in scams)',
-    severity: 'medium',
-    match: (page) => {
-      const matches = page.content.match(/\b[A-Z]{5,}\b/g);
-      return matches !== null && matches.length > 10;
-    }
-  },
-  {
-    id: 'contains-crypto-terms',
-    description: 'Page mentions cryptocurrency giveaway or airdrop',
-    severity: 'high',
-    match: (page) =>
-      /crypto|airdrop|bitcoin|ethereum|wallet address|send eth|send btc/i.test(page.content),
-  },
-  {
-    id: 'domain-in-title',
-    description: 'Title includes a suspicious domain name (e.g., "login-facebook.com")',
-    severity: 'high',
-    match: (page) =>
-      /[a-z0-9-]+(\.com|\.net|\.org)/i.test(page.pageMetadata.title) &&
-      /login|verify|secure/i.test(page.pageMetadata.title),
-  },
-  {
-    id: 'no-doctype-declared',
-    description: 'Page has no DOCTYPE declaration (common in fake, minimal HTML)',
-    severity: 'low',
-    match: (page) => !/<!doctype html>/i.test(page.content),
-  },
-  {
-    id: 'suspicious-brand-mismatch',
-    description: 'Title mentions a known brand but domain does not match',
-    severity: 'high',
-    match: (page) => {
-      const title = page.pageMetadata.title.toLowerCase();
-      const url = page.url.toLowerCase();
-      return (
-        /(paypal|facebook|microsoft|netflix|apple|amazon)/.test(title) &&
-        !url.includes('paypal') &&
-        !url.includes('facebook') &&
-        !url.includes('microsoft') &&
-        !url.includes('netflix') &&
-        !url.includes('apple') &&
-        !url.includes('amazon')
-      );
-    }
-  },
-  {
-    id: 'multiple-forms',
-    description: 'Page contains multiple form tags (often seen in scam pages)',
-    severity: 'medium',
-    match: (page) => {
-      const match = page.content.match(/<form/gi);
-      return match !== null && match.length > 2;
-    }
-  },
-  {
-    id: 'auto-download',
-    description: 'Page triggers a file download on load',
-    severity: 'high',
-    match: (page) =>
-      /<a[^>]+download=|window\.location\.href\s*=\s*["'][^"']+\.exe["']/i.test(page.content),
-  },
-  {
-    id: 'javascript-obfuscation',
-    description: 'JavaScript uses obfuscation patterns like charCodeAt + eval',
-    severity: 'high',
-    match: (page) =>
-      /charCodeAt\(|fromCharCode\(|eval\(/i.test(page.content) &&
-      /String\.fromCharCode/.test(page.content),
-  },
-  {
-    id: 'suspicious-language',
-    description: 'Page uses language often found in scam/fake pages',
-    severity: 'medium',
-    match: (page) =>
-      /you have been selected|click below to continue|congratulations|dear customer/i.test(page.content),
+    score: 90,
+    match: (parsed) =>
+      parsed.scripts.some(
+        (s) =>
+        s.inlineCode &&
+        /charCodeAt\(|fromCharCode\(|eval\(/.test(s.inlineCode) &&
+        /String\.fromCharCode/.test(s.inlineCode)
+      ),
   },
   {
     id: 'no-meta-charset',
-    description: 'Page does not declare a meta charset (common in auto-generated scam)',
+    description: 'Page does not declare a meta charset',
     severity: 'low',
-    match: (page) => !/<meta[^>]+charset=/i.test(page.content),
+    score: 10,
+    match: (parsed) => !parsed.meta.charset,
   },
   {
-    id: 'link-text-mismatch',
-    description: 'Anchor text and href domain mismatch (e.g., text says “paypal.com” but link goes elsewhere)',
-    severity: 'high',
-    match: (page) => {
-      const re = /<a [^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi;
-      let m;
-      while ((m = re.exec(page.content))) {
-        const href = m[1];
-        const text = m[2];
-        if (/https?:\/\//.test(href) && !href.includes(text.trim())) {
-          return true;
-        }
-      }
-      return false;
+    id: 'too-many-uppercase',
+    description: 'Text content contains too many all-uppercase words',
+    severity: 'medium',
+    score: 40,
+    match: (parsed) => {
+      const matches = parsed.textContent.match(/\b[A-Z]{5,}\b/g);
+      return (matches !== null && matches.length > 10);
     },
   },
   {
-    id: 'homograph-idn',
-    description: 'Domain contains visually deceptive characters (IDN homograph attack)',
+    id: 'form-without-https',
+    description: 'Form action is over HTTP instead of HTTPS',
     severity: 'high',
-    match: (page) =>
-      /[\u0400-\u04FF\u0370-\u03FF\u4E00-\u9FFF]/.test(new URL(page.url).hostname),
+    score: 70,
+    match: (parsed) => parsed.forms.some((f) => f.action?.startsWith('http://')),
   },
   {
-    id: 'excessive-subdomains',
-    description: 'URL uses many subdomains, maybe phishing (~4+ levels)',
+    id: 'iframe-hidden',
+    description: 'Page contains iframe from external origin',
     severity: 'medium',
-    match: (page) => {
-      const hostname = new URL(page.url).hostname;
-      return hostname.split('.').length >= 5;
-    },
-  },
-  {
-    id: 'open-redirect-param',
-    description: 'URL contains open-redirect param (?redirect= or ?url=)',
-    severity: 'medium',
-    match: (page) =>
-      /[?&](url|redirect|next)=https?:\/\//i.test(page.url),
-  },
-  {
-    id: 'tabnabbing-meta-refresh',
-    description: 'Page contains meta-refresh redirect (used in tabnabbing)',
-    severity: 'medium',
-    match: (page) => /<meta http-equiv=["']refresh["'] content=["'][0-9]+;url=/i.test(page.content),
-  },
-  {
-    id: 'cloned-brand-logo',
-    description: 'Page references images from brand domains but is on different host',
-    severity: 'medium',
-    match: (page) => {
-      const imgRe = /<img[^>]+src=["']([^"']+)["']/gi;
-      let m;
-      const host = new URL(page.url).hostname;
-      while ((m = imgRe.exec(page.content))) {
-        const src = m[1];
+    score: 30,
+    match: (parsed) =>
+      parsed.iframes.some((src) => {
         try {
-          const imgHost = new URL(src, page.url).hostname;
-          if (/(paypal|facebook|google|apple)\./i.test(imgHost) && !host.includes(RegExp.$1)) {
-            return true;
-          }
-        } catch {}
-      }
-      return false;
-    },
+          const host = new URL(src).hostname;
+          const pageHost = new URL(parsed.url).hostname;
+          return !host.includes(pageHost);
+        } catch {
+          return false;
+        }
+      }),
   },
   {
     id: 'invalid-ssl-http',
-    description: 'Page loaded over HTTP (not HTTPS)',
+    description: 'Page is served over HTTP, not HTTPS',
     severity: 'medium',
-    match: (page) => page.url.startsWith('http://'),
-  },
-  {
-    id: 'nested-iframe-redirect',
-    description: 'Page contains nested iframe redirecting to another domain',
-    severity: 'high',
-    match: (page) => {
-      const re = /<iframe[^>]+src=["'](https?:\/\/[^"']+)["']/gi;
-      let m;
-      while ((m = re.exec(page.content))) {
-        const srcHost = new URL(m[1]).hostname;
-        if (!new URL(page.url).hostname.includes(srcHost)) return true;
-      }
-      return false;
-    }
-  },
-  {
-    id: 'brand-mention-text-only',
-    description: 'Title mentions brand but no asset reference (logo, favicon)',
-    severity: 'low',
-    match: (page) => {
-      const title = page.pageMetadata.title.toLowerCase();
-      if (/(paypal|facebook|google|apple)/.test(title)) {
-        if (!/<img[^>]+(favicon|logo)/i.test(page.content)) return true;
-      }
-      return false;
-    },
+    score: 25,
+    match: (parsed) => parsed.url.startsWith('http://'),
   },
   {
     id: 'mailto-password-field',
-    description: 'Form uses mailto for password (scam tactic)',
+    description: 'Form uses mailto and has password field',
     severity: 'high',
-    match: (page) => /<form[^>]+action=["']mailto:[^"']+["'][^>]*>/.test(page.content) &&
-      /type=["']?password["']?/i.test(page.content),
+    score: 90,
+    match: (parsed) =>
+      parsed.forms.some(
+        (f) => f.action?.startsWith('mailto:') && f.hasPasswordField
+      ),
   },
-  
+  {
+    id: 'trusted-domain-bonus',
+    description: 'Domain is in the list of known trusted domains',
+    severity: 'low',
+    score: -100,
+    match: (parsed) => {
+      try {
+        const hostname = new URL(parsed.url).hostname;
+        return TRUSTED_DOMAINS.some(
+          (domain) =>
+          hostname === domain || hostname.endsWith(`.${domain}`)
+        );
+      } catch {
+        return false;
+      }
+    },
+    
+  },
+  {
+    id: 'form-suspicious-keyword',
+    description: 'Form contains suspicious input names like ssn, creditcard, or bank',
+    severity: 'high',
+    score: 60,
+    match: (parsed) =>
+      parsed.forms.some((form) =>
+        form.fields.some((field) => {
+          if (!field.name) return false;
+          /ssn|creditcard|cvv|iban|routing|bank/i.test(field.name)
+        })
+      ),
+  },
+  {
+    id: 'long-dashed-domain',
+    description: 'Domain is unusually long or contains many dashes (common in phishing)',
+    severity: 'medium',
+    score: 40,
+    match: (parsed) => {
+      try {
+        const hostname = new URL(parsed.url).hostname;
+        return hostname.length > 50 || hostname.split('-').length > 4;
+      } catch {
+        return false;
+      }
+    },
+  },
+  {
+    id: 'too-many-hidden-inputs',
+    description: 'Form contains unusually many hidden input fields',
+    severity: 'medium',
+    score: 30,
+    match: (parsed) =>
+      parsed.forms.some((form) =>
+        form.fields.filter((f) => f.type === 'hidden').length > 5
+      ),
+  },
+  {
+    id: 'suspicious-tld',
+    description: 'Domain uses a suspicious or uncommon TLD like .xyz, .top, .gq',
+    severity: 'medium',
+    score: 35,
+    match: (parsed) => {
+      try {
+        const hostname = new URL(parsed.url).hostname;
+        return /\.(xyz|top|gq|tk|ml|cf|work|zip|review)$/.test(hostname);
+      } catch {
+        return false;
+      }
+    },
+  },
+  {
+    id: 'suspicious-data-url',
+    description: 'Page uses base64-encoded data URLs in script, image, or iframe — often used to hide payloads.',
+    severity: 'high',
+    score: 60,
+    match: (parsed) =>
+      parsed.images.some((img) => img.src.startsWith('data:')) ||
+      parsed.scripts.some((s) => s.src?.startsWith('data:')) ||
+      parsed.iframes.some((src) => src.startsWith('data:')),
+  },
+  {
+    id: 'no-favicon',
+    description: 'Page is missing a favicon, which is unusual for real websites.',
+    severity: 'low',
+    score: 15,
+    match: (parsed) => !parsed.faviconUrl,
+  },
+  {
+    id: 'no-meta-description',
+    description: 'Missing meta description tag',
+    severity: 'low',
+    score: 10,
+    match: (parsed) => !parsed.meta.description,
+  },
+  {
+    id: 'suspicious-domain-pattern',
+    description: 'Domain contains many digits or hyphens, which is common in phishing sites.',
+    severity: 'medium',
+    score: 40,
+    match: (parsed) => {
+      try {
+        const hostname = new URL(parsed.url).hostname;
+        const hyphenCount = (hostname.match(/-/g) || []).length;
+        const digitCount = (hostname.match(/\d/g) || []).length;
+        return hyphenCount > 3 || digitCount > 5;
+      } catch {
+        return false;
+      }
+    },
+  },
+{
+  id: 'free-domain-provider',
+  description: 'Domain uses a known free TLD or hosting subdomain, often abused by scammers',
+  severity: 'high',
+  score: 60,
+  match: (parsed) => {
+    try {
+      const hostname = new URL(parsed.url).hostname;
+      const freeTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq'];
+      const freeHosts = [
+        '000webhostapp.com',
+        'infinityfreeapp.com',
+        'web.app',
+      ];
+      
+      if (freeTLDs.some((tld) => hostname.endsWith(tld))) return true;
+      return freeHosts.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+    } catch {
+      return false;
+    }
+  },
+},
 ];

@@ -13,5 +13,8 @@
     "hono": "^4.8.4",
     "htmlparser2": "^10.0.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10"
   }
 }

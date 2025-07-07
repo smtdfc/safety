@@ -1,5 +1,6 @@
 import { createApp, Fragment } from 'rumious';
-import {Navbar} from './components/Navbar'
+import {Navbar} from './components/Navbar';
+import {Offcanvas} from './components/Offcanvas'
 import initRouter from "./router";
 import './main.lightizui.style';
 
@@ -21,6 +22,7 @@ const router = initRouter(app);
 app.render(
   <Fragment>
     <Navbar/>
+    <Offcanvas/>
     <div class="container" style="margin-top:5rem">
       {router.rootInject}
     </div>

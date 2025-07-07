@@ -1,3 +1,4 @@
 export const fieldLabelMap ={
-  "id":"Scan ID"
+  "id":"Scan ID",
+  "riskScore":"Score"
 }

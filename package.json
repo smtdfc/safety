@@ -10,13 +10,14 @@
 		"test": "echo \"No tests yet\""
 	},
 	"dependencies": {
-		"lightiz-ui": "^1.0.3",
+		"lightiz-ui": "^1.0.4",
 		"rumious": "^2.1.6",
 		"rumious-router": "^1.0.0"
 	},
 	"devDependencies": {
 		"@types/chrome": "^0.0.329",
 		"lightizui-webpack": "^1.0.1",
+		"rumious-compiler": "^0.0.4",
 		"rumious-webpack": "*",
 		"ts-loader": "^9.5.2"
 	}

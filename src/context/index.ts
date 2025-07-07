@@ -5,6 +5,7 @@ export interface ContextData{
   scanResult:ScanResult| null;
 }
 
+export const UIControlContext = createContext({});
 export const AppContext = createContext<ContextData>({
   scanResult:null
 });

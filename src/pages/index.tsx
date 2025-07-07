@@ -1,4 +1,4 @@
-import { RumiousComponent, Fragment, createStore, createContext } from 'rumious';
+import { RumiousComponent, Fragment, createStore, createContext,createState } from 'rumious';
 import { Table } from '../components/Table';
 import { ScanResultDisplay } from '../components/ScanResultDisplay';
 import { AppContext } from '../context';
@@ -13,6 +13,7 @@ export class Page extends RumiousComponent < null > {
   private currentUrl = "";
   private pageInfo!: PageInfo;
   private tableControl = createContext({});
+  private isLoading = createState(false);
   async beforeRender() {
     this.pageInfo = await getCurrentPageInfo()
     this.currentUrl = await getCurrentURL();
@@ -35,7 +36,7 @@ export class Page extends RumiousComponent < null > {
           <input type="text" class="form-input" placeholder="URL..." value={this.currentUrl}/>
         </div>
         <div class="d-flex align-center justify-center" style="flex-wrap:wrap">
-          <button on:click={() => this.scan()} class="btn btn-rounded btn-sm btn-primary btn-icon-text" >
+          <button prop:disabled={this.isLoading} on:click={() => this.scan()} class="btn btn-rounded btn-sm btn-primary btn-icon-text" >
             <i class="icon material-icons">search</i> Scan
           </button>
           <button class="btn btn-rounded btn-sm btn-danger btn-icon-text">

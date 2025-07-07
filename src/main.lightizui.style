@@ -3,6 +3,7 @@
   "components":[
     "button",
     "navbar",
+    "offcanvas",
     "container",
     "form",
     "table"

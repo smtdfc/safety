@@ -12,14 +12,16 @@ export interface ScanResult {
     description: string;
     error: string;
   } [];
+  riskScore: number;
 }
-
 
 export interface ScanIssue {
   ruleId: string;
   description: string;
   severity: 'low' | 'medium' | 'high';
+  score: number;
 }
+
 
 export interface PageInfo {
   url: string;

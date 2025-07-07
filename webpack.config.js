@@ -19,50 +19,49 @@ module.exports = {
   devtool: isProduction ? false : 'source-map',
   target: "web",
   resolve: {
-    extensions: ['.lightizui.style','.tsx', '.ts', '.js', '.jsx'],
+    extensions: ['.lightizui.style', '.tsx', '.ts', '.js', '.jsx'],
     alias: {}
   },
   
   module: {
     rules: [
-      {
-        test: /\.(ts|tsx)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: path.resolve(__dirname, './node_modules/rumious-webpack/dist/loader/index.js'),
-          },
-          {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: true
-            }
+    {
+      test: /\.(ts|tsx)$/,
+      exclude: /node_modules/,
+      use: [
+        {
+          loader: path.resolve(__dirname, './node_modules/rumious-webpack/dist/loader/index.js'),
+        },
+        {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+            configFile: path.resolve(__dirname, 'tsconfig.json')
           }
-        ]
-      },
+        }
+        
+      ]
+    },
+    {
+      test: /\.jsx$/,
+      exclude: /node_modules/,
+      use: [
       {
-        test: /\.jsx$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: path.resolve(__dirname, './node_modules/rumious-webpack/dist/loader/index.js'),
-          }
-        ]
-      },
+        loader: path.resolve(__dirname, './node_modules/rumious-webpack/dist/loader/index.js'),
+      }]
+    },
+    {
+      test: /\.lightizui\.style$/,
+      type: 'javascript/auto',
+      use: [
       {
-        test: /\.lightizui\.style$/,
-        type: 'javascript/auto',
-        use: [
-          {
-            loader: path.resolve(__dirname, './node_modules/lightizui-webpack/dist/index.js'),
-          },
-        ],
-      },
-      {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: 'asset/resource'
-      }, 
-    ]
+        loader: path.resolve(__dirname, './node_modules/lightizui-webpack/dist/index.js'),
+      }, ],
+    },
+    {
+      test: /\.(png|svg|jpg|jpeg|gif)$/i,
+      type: 'asset/resource'
+    }, ]
   },
   plugins: [],
   

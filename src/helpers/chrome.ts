@@ -1,10 +1,10 @@
-import {PageInfo} from "../types";
+import { PageInfo } from "../types";
 
 export function getCurrentURL(): Promise < string > {
   return new Promise((re, rj) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const url = tabs[0]?.url;
-      if(!url) return rj();
+      if (!url) return rj();
       re(url);
     });
   });
@@ -20,7 +20,7 @@ export function getCurrentPageInfo(): Promise < PageInfo > {
         const [result] = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: () => ({
-            content: document.body.innerHTML,
+            content: document.documentElement.outerHTML,
             title: document.title,
             redirect: document.referrer,
           }),
@@ -29,7 +29,7 @@ export function getCurrentPageInfo(): Promise < PageInfo > {
         const pageInfo: PageInfo = {
           url: tab.url,
           pageMetadata: {
-            title:  result.result.title || "",
+            title: result.result.title || "",
             redirect: result.result.redirect || "",
           },
           content: result.result.content || "",
